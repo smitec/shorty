@@ -64,21 +64,24 @@ fn lost() -> String {
 fn add(newlink: Json<NewLink<'_>>) -> &str {
     use schema::links;
 
+    let secret = env::var("ADD_SECRET").expect("ADD_SECRET not set");
     let connection = establish_connection();
 
-    //TODO: check the secret
+    if secret == newlink.0.secret {
+        let new_link = AddLink {
+            short: newlink.0.short,
+            long: newlink.0.long,
+        };
 
-    let new_link = AddLink {
-        short: newlink.0.short,
-        long: newlink.0.long,
-    };
+        diesel::insert_into(links::table)
+            .values(&new_link)
+            .execute(&connection)
+            .expect("Can't Add Link");
 
-    diesel::insert_into(links::table)
-        .values(&new_link)
-        .execute(&connection)
-        .expect("Can't Add Link");
-
-    "OK"
+        "OK"
+    } else {
+        "NOPE"
+    }
 }
 
 #[launch]
