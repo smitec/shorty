@@ -1,0 +1,7 @@
+-- Your SQL goes here
+CREATE TABLE links (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    short VARCHAR NOT NULL,
+    long VARCHAR NOT NULL,
+    hits INTEGER NOT NULL DEFAULT 0
+)
