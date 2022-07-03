@@ -1,6 +1,6 @@
 table! {
     links (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         short -> Text,
         long -> Text,
         hits -> Integer,
