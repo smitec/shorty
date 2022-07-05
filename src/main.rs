@@ -25,6 +25,12 @@ struct NewLink<'r> {
     secret: &'r str,
 }
 
+#[derive(Deserialize)]
+struct RemoveLink<'r> {
+    short: &'r str,
+    secret: &'r str,
+}
+
 fn establish_connection() -> SqliteConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
     SqliteConnection::establish(&database_url).expect("Cannot connect to database")
@@ -84,10 +90,29 @@ fn add(newlink: Json<NewLink<'_>>) -> &str {
     }
 }
 
+#[post("/del", format = "json", data = "<dellink>")]
+fn del(dellink: Json<RemoveLink<'_>>) -> &str {
+    use schema::links::dsl::*;
+
+    let secret = env::var("ADD_SECRET").expect("ADD_SECRET not set");
+    let connection = establish_connection();
+
+    if secret == dellink.0.secret {
+        diesel::delete(links.filter(short.eq(dellink.0.short)))
+            .execute(&connection)
+            .expect("Can't Remove Link");
+
+        "OK"
+    } else {
+        "NOPE"
+    }
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![index])
         .mount("/", routes![lost])
         .mount("/", routes![add])
+        .mount("/", routes![del])
 }
