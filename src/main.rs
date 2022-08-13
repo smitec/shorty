@@ -50,7 +50,7 @@ fn index(short_code: &str) -> Redirect {
     if results.len() == 1 {
         let link = results.get(0).unwrap();
 
-        diesel::update(links)
+        diesel::update(links.find(link.id))
             .set(hits.eq(link.hits + 1))
             .execute(&connection)
             .expect("Could not update hit count");
@@ -59,6 +59,24 @@ fn index(short_code: &str) -> Redirect {
     } else {
         Redirect::to(uri!("/lost"))
     }
+}
+
+#[get("/stats")]
+fn stats() -> String {
+    use schema::links::dsl::*;
+
+    let connection = establish_connection();
+    let results = links
+        .load::<Link>(&connection)
+        .expect("Error Loading Links");
+
+    let mut result: String = "".to_string();
+
+    for link in results {
+        result.push_str(format!("{} -> {} : {} hits\n", link.short, link.long, link.hits).as_str());
+    }
+
+    result
 }
 
 #[get("/lost")]
@@ -115,4 +133,5 @@ fn rocket() -> _ {
         .mount("/", routes![lost])
         .mount("/", routes![add])
         .mount("/", routes![del])
+        .mount("/", routes![stats])
 }
