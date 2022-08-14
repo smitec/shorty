@@ -6,6 +6,8 @@ COPY ./ ./
 
 RUN cargo build --release
 
+RUN cargo install diesel_cli --no-default-features --features sqlite
+
 # FROM debian:buster-slim
 
 # WORKDIR /shorty
