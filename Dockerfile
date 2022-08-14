@@ -6,10 +6,10 @@ COPY ./ ./
 
 RUN cargo build --release
 
-FROM debian:buster-slim
+# FROM debian:buster-slim
 
-WORKDIR /shorty
+# WORKDIR /shorty
 
-COPY --from=build /shorty/target/release/shorty ./
+# COPY --from=build /shorty/target/release/shorty ./
 
-CMD ["/shorty/shorty"]
+CMD ["/shorty/run.sh"]
